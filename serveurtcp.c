@@ -70,6 +70,8 @@ int creersock( u_short port) {
   */
   adresse.sin_addr.s_addr=INADDR_ANY;
   
+  optval = 1;
+  setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
   /*
   bind est utilis? pour lier la socket : on va attacher la socket cr?e au d?but avec les informations rentr?es dans
   la structure sockaddr_in (donc une adresse et un num?ro de port).
@@ -176,3 +178,4 @@ int main () {
   
   return 0;
 }
+
