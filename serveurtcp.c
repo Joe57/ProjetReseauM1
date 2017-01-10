@@ -3,16 +3,16 @@
  */
 
 // On importe des fichiers.h n?c?ssaires ? l'application
-#include <stdio.h>      // Fichier contenant les en-t?tes des fonctions standard d'entr?es/sorties 
+#include <stdio.h>      // Fichier contenant les en-t?tes des fonctions standard d'entr?es/sorties
 #include <stdlib.h>     // Fichier contenant les en-t?tes de fonctions standard telles que malloc()
-#include <string.h>     // Fichier contenant les en-t?tes de fonctions standard de gestion de cha?nes de caract?res 
+#include <string.h>     // Fichier contenant les en-t?tes de fonctions standard de gestion de cha?nes de caract?res
 #include <unistd.h>     // Fichier d'en-t?tes de fonctions de la norme POSIX (dont gestion des fichiers : write(), close(), ...)
 #include <sys/types.h>      // Fichier d'en-t?tes contenant la d?finition de plusieurs types et de structures primitifs (syst?me)
 #include <sys/socket.h>     // Fichier d'en-t?tes des fonctions de gestion de sockets
 #include <netinet/in.h>     // Fichier contenant diff?rentes macros et constantes facilitant l'utilisation du protocole IP
 #include <netdb.h>      // Fichier d'en-t?tes contenant la d?finition de fonctions et de structures permettant d'obtenir des informations sur le r?seau (gethostbyname(), struct hostent, ...)
 #include <memory.h>     // Contient l'inclusion de string.h (s'il n'est pas d?j? inclus) et de features.h
-#include <errno.h>      // Fichier d'en-t?tes pour la gestion des erreurs (notamment perror()) 
+#include <errno.h>      // Fichier d'en-t?tes pour la gestion des erreurs (notamment perror())
 
 #define P 12332
 
@@ -34,10 +34,10 @@ int creersock( u_short port) {
 
   // On cr?e une variable adresse selon la structure sockaddr_in (la structure est d?crite dans sys/socket.h)
   struct sockaddr_in adresse;
-  
+
   /*
   La ligne suivante d?crit la cr?ation de la socket en tant que telle.
-  La fonction socket prend 3 param?tres : 
+  La fonction socket prend 3 param?tres :
   - la famille du socket : la plupart du temps, les d?veloppeurs utilisent AF_INET pour l'Internet (TCP/IP, adresses IP sur 4 octets)
     Il existe aussi la famille AF_UNIX, dans ce mode, on ne passe pas des num?ros de port mais des noms de fichiers.
   - le protocole de niveau 4 (couche transport) utilis? : SOCK_STREAM pour TCP, SOCK_DGRAM pour UDP, ou enfin SOCK_RAW pour g?n?rer
@@ -53,37 +53,37 @@ int creersock( u_short port) {
     perror ("ERREUR OUVERTURE");
     return(-1);
   }
-  
-  // On compl?te les champs de la structure sockaddr_in : 
+
+  // On compl?te les champs de la structure sockaddr_in :
   // La famille du socket, AF_INET, comme cit? pr?c?dement
   adresse.sin_family = AF_INET;
 
-  /* Le port auquel va se lier la socket afin d'attendre les connexions clientes. La fonction htonl()  
+  /* Le port auquel va se lier la socket afin d'attendre les connexions clientes. La fonction htonl()
   convertit  un  entier  long  "htons" signifie "host to network long" conversion depuis  l'ordre des bits de l'h?te vers celui du r?seau.
   */
   adresse.sin_port = htons(port);
 
-  /* Ce champ d?signe l'adresse locale auquel un client pourra se connecter. Dans le cas d'une socket utilis?e 
-  par un serveur, ce champ est initialis? avec la valeur INADDR_ANY. La constante INADDR_ANY utilis?e comme 
+  /* Ce champ d?signe l'adresse locale auquel un client pourra se connecter. Dans le cas d'une socket utilis?e
+  par un serveur, ce champ est initialis? avec la valeur INADDR_ANY. La constante INADDR_ANY utilis?e comme
   adresse pour le serveur a pour valeur 0.0.0.0 ce qui correspond ? une ?coute sur toutes les interfaces locales disponibles.
-    
+
   */
   adresse.sin_addr.s_addr=INADDR_ANY;
-  
+
   int optval = 1;
   setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-  
 
-  
+
+
   /*
   bind est utilis? pour lier la socket : on va attacher la socket cr?e au d?but avec les informations rentr?es dans
   la structure sockaddr_in (donc une adresse et un num?ro de port).
-   Ce bind affecte une identit? ? la socket, la socket repr?sent?e par le descripteur pass? en premier argument est associ?e 
-    ? l'adresse pass?e en seconde position. Le dernier argument repr?sente la longueur de l'adresse. 
+   Ce bind affecte une identit? ? la socket, la socket repr?sent?e par le descripteur pass? en premier argument est associ?e
+    ? l'adresse pass?e en seconde position. Le dernier argument repr?sente la longueur de l'adresse.
     Ce qui a pour but de  rendre la socket accessible de l'ext?rieur (par getsockbyaddr)
   */
   retour = bind (sock,(struct sockaddr *)&adresse,sizeof(adresse));
-  
+
   // En cas d'erreur lors du bind, on affiche un message d'erreur et on renvoie -1
   if (retour<0) {
     perror ("IMPOSSIBLE DE NOMMER LA SOCKET");
@@ -93,21 +93,36 @@ int creersock( u_short port) {
   // Au final, on renvoie sock, qui contient l'identifiant ? la socket cr?e et attach?e.
   return (sock);
 }
+// Fonction pour lancer les différents fonctions, factorisation les amis !
 
+int lanceOption(int socket, int socketbis, int option, char msg [BUFSIZ], int optval){
+    int i;
+    i = setsockopt(socket, SOL_SOCKET, option, &optval, sizeof(int));
+    printf("résultat de i : %d\n",i);
+    socketbis = write(socket, msg, strlen(msg));
+    if (socketbis == -1) {
+      perror("Erreur write");
+      return(-1);
+    }
+    else{
+        return 0;
+    }
+}
 
 int main () {
 
   // On d?finit les variables n?c?ssaires
   int newsockfd, s, sock;
+  int err, optval = 1;
   u_short port;
   char msg [BUFSIZ];
-  
+
   port=P;
 
   // On cr?e la socket
   sock = creersock (port);
 
-  
+
 
   /*
   listen
@@ -116,73 +131,87 @@ int main () {
   */
   listen (sock,5);
 
-    
+
   while(1){
 
 	  /* La fonction accept permet d'accepter une connexion ? notre socket par un client. On passe en param?tres la socket serveur d'écoute à demi définie.
-	  newsockfd contiendra l'identifiant de la socket de communication. newsockfd est la valeur de retour de la primitive accept. 
+	  newsockfd contiendra l'identifiant de la socket de communication. newsockfd est la valeur de retour de la primitive accept.
 	 C'est une socket d'?change de messages : elle est enti?rement d?finie.
-	 On peut pr?ciser aussi la structure et la taille de sockaddr associ?e 
+	 On peut pr?ciser aussi la structure et la taille de sockaddr associ?e
 	  mais ce n'est pas obligatoire et ici on a mis le pointeur NULL
 	  */
 	  newsockfd = accept (sock, (struct sockaddr *) 0, (unsigned int*) 0);
- 
+
 	  // Si l'accept se passe mal, on quitte le programme en affichant un message d'erreur.
 	  if (newsockfd == -1) {
-	    perror("Erreur accept");
+	    perror("Erreur accept\n");
 	    return(-1);
 	  }
 	  else
-	    printf("Accept reussi");
-	  
+	    printf("Accept reussi\n");
+
 	  int r = fork();
 
 	  if(r == -1){
-	    perror("Erreur fork");
+	    perror("Erreur fork\n");
 	    return(-1);
 	  }
 	  else if(r == 0){ //Fils
-		  // On lit le message envoy? par la socket de communication. 
+		  // On lit le message envoy? par la socket de communication.
 		//  msg contiendra la chaine de caract?res envoy?e par le r?seau,
 		  // s le code d'erreur de la fonction. -1 si pb et sinon c'est le nombre de caract?res lus
-		  
-		while(1){		  
+
+		while(1){
 		  s = read(newsockfd, msg, 1024);
-		   
-  
 		  if (s == -1)
 		    perror("Problemes");
+
 		  else {
+            // On tente des choses ici, avec l'option RCV_BUF
+            if(strcmp(msg, "so_rcvbuf") == 0){
+                printf("Option rcvbuf :\n");
+                if(lanceOption(newsockfd, s,SO_RCVBUF, msg, optval) == 0){
+                    printf("Ecriture reussie, msg: %s\n", msg);
+                /*err = setsockopt(newsockfd, SOL_SOCKET, SO_RCVBUF, &optval, sizeof(int));
+                printf("résultat de err : %d\n",err);
+                s = write(newsockfd, msg, strlen(msg));
+    		    if (s == -1) {
+    		      perror("Erreur write");
+    		      return(-1);*/
+              }
+    		    else
+    		      perror("Erreur option");
+            }
+            else{
+    		    // Si le code d'erreur est bon, on affiche le message.
+    		    msg[s] = 0;
+    		    printf("Msg: %s\n", msg);
+    		    printf("Recept reussie, emission msg: ");
 
-		    // Si le code d'erreur est bon, on affiche le message.
-		    msg[s] = 0;
-		    printf("Msg: %s\n", msg);
-		    printf("Recept reussie, emission msg: ");
+    		    // On demande ? l'utilisateur de rentrer un message qui va ?tre exp?di? sur le r?seau
+    		    scanf(" %[^\n]", msg);//scanf("%s", msg);
 
-		    // On demande ? l'utilisateur de rentrer un message qui va ?tre exp?di? sur le r?seau
-		    scanf(" %[^\n]", msg);//scanf("%s", msg);
-		    
-		    // On va ?crire sur la socket, en testant le code d'erreur de la fonction write.
-		    s = write(newsockfd, msg, strlen(msg));
-		    if (s == -1) {
-		      perror("Erreur write");
-		      return(-1);
-		    }
-		    else
-		      printf("Ecriture reussie, msg: %s\n", msg);
-			}
+    		    // On va ?crire sur la socket, en testant le code d'erreur de la fonction write.
+    		    s = write(newsockfd, msg, strlen(msg));
+    		    if (s == -1) {
+    		      perror("Erreur write");
+    		      return(-1);
+    		    }
+    		    else
+    		      printf("Ecriture reussie, msg: %s\n", msg);
+                }
+            }
 		}
 			// On referme la socket de communication
 		    close(newsockfd);
-			
+
 	  } //Fin du fils
 	  else{ //Pere
-	  
+
 	  }
   }
   // On referme la socket d'?coute.
   close(sock);
-  
+
   return 0;
 }
-
