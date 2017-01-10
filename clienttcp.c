@@ -75,7 +75,7 @@ int main() {
     On remarque que, contrairement au serveur qui lit en premier et écrit ensuite, le client commence par écrire le message
     que le serveur attend, et lit ensuite la réponse.
     */
-
+while(1){
     printf("\nMessage: ");
     scanf(" %[^\n]", msg);//scanf("%s", msg);
    // printf("Msg a envoyer: %s\n", msg);
@@ -98,10 +98,11 @@ int main() {
     }
     else
         printf("Lecture reussie, msg: %d %s\n", s, msg);
-    
+} 
     // On referme la socket cliente. Cette opération ferme la socket cliente pour le programme client, le serveur fait de même de son coté,
     // en plus de refermer sa propre socket.
     close(sock);
     
     return 0;
 }
+
