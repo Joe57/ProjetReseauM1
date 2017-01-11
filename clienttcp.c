@@ -76,10 +76,10 @@ int main() {
     que le serveur attend, et lit ensuite la r�ponse.
     */
 while(1){
+
     printf("\nMessage: ");
     scanf(" %[^\n]", msg);//scanf("%s", msg);
    // printf("Msg a envoyer: %s\n", msg);
-
     // Comme pour le serveur, on utilise write pour exp�dier le message sur le r�seau, avec message d'erreur si l'�criture se passe mal.
     if (write(sock, msg, strlen(msg)) == -1) {
         perror("Erreur ecriture");
@@ -90,14 +90,33 @@ while(1){
     printf("Maintenant lecture\n");
     memset(msg, 0, sizeof msg);
     s = read(sock, msg, 1024);
-
     // Message d'erreur si la lecture se passe mal.
     if (s == -1) {
         perror("Erreur read");
         return(-1);
     }
-    else
+    else{
         printf("Lecture reussie, msg: %s\n", msg);
+        if(strcmp(msg, "setsockopt effectué") == 0){
+            printf("envoi gros message");
+            char msgTest [3000];
+            int i =0;
+            for (i=0; i<3000; i++){
+                msgTest[i] = "a";
+            }
+            if (write(sock, msgTest, strlen(msgTest)) == -1) {
+                perror("Erreur ecriture du message de test");
+                return(-1);
+            }
+            memset(msg, 0, sizeof msg);
+            s = read(sock, msg, sizeof(msg));
+            // Message d'erreur si la lecture se passe mal.
+            if (s == -1) {
+                perror("Erreur read");
+                return(-1);
+            }
+        }
+    }
 }
     // On referme la socket cliente. Cette op�ration ferme la socket cliente pour le programme client, le serveur fait de m�me de son cot�,
     // en plus de refermer sa propre socket.

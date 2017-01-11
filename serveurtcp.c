@@ -95,12 +95,36 @@ int creersock( u_short port) {
 }
 // Fonction pour lancer les différents fonctions, factorisation les amis !
 
-int lanceOption(int socket, int socketbis, int option, char msg [BUFSIZ], int optval){
-    int i;
-    i = setsockopt(socket, SOL_SOCKET, option, &optval, sizeof(int));
-    printf("résultat de i : %d\n",i);
-    socketbis = write(socket, msg, strlen(msg));
-    if (socketbis == -1) {
+int lanceSetOption(int socket, int option, int opt, socklen_t len){
+    int val = 0;
+    char msg [] ="setsockopt effectué";
+    val = setsockopt(socket, SOL_SOCKET, option, &opt, len);
+    if (-1 == val){
+        perror("setsockopt");
+        return errno;
+    }
+    //printf("résultat du buffer : %d\n",opt);
+    val = write(socket, msg, strlen(msg));
+    if (val == -1) {
+      perror("Erreur write");
+      return(-1);
+    }
+    else{
+        return 0;
+    }
+}
+
+int lanceGetOption(int socket, int option, int opt, socklen_t len){
+    int val = 0;
+    char msg [] ="getsockopt effectué";
+    val = setsockopt(socket, SOL_SOCKET, option, &opt, len);
+    if (-1 == val){
+        perror("getsockopt");
+        return errno;
+    }
+    //printf("résultat du buffer : %d\n",opt);
+    val = write(socket, msg, strlen(msg));
+    if (val == -1) {
       perror("Erreur write");
       return(-1);
     }
@@ -113,9 +137,11 @@ int main () {
 
   // On d?finit les variables n?c?ssaires
   int newsockfd, s, sock;
-  int err, optval = 1;
+  int err;
   u_short port;
   char msg [BUFSIZ];
+  int opt = 1;
+  socklen_t len = sizeof(opt);
 
   port=P;
 
@@ -170,8 +196,12 @@ int main () {
             // On tente des choses ici, avec l'option RCV_BUF
             if(strcmp(msg, "so_rcvbuf") == 0){
                 printf("Option rcvbuf :\n");
-                if(lanceOption(newsockfd, s,SO_RCVBUF, msg, optval) == 0){
+
+                if(lanceSetOption(newsockfd,SO_RCVBUF, &opt, len) == 0){
                     printf("Ecriture reussie, msg: %s\n", msg);
+                    s = read(newsockfd, msg, sizeof(msg));
+                    printf("Nb de bytes lu %d\n", sizeof(msg));
+                    s = write(newsockfd, "ok", 1024);
                 /*err = setsockopt(newsockfd, SOL_SOCKET, SO_RCVBUF, &optval, sizeof(int));
                 printf("résultat de err : %d\n",err);
                 s = write(newsockfd, msg, strlen(msg));
