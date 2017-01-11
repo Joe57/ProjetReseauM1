@@ -1,23 +1,23 @@
-all: serveurtcp clienttcp
+all: serveurtcpcpp clienttcpcpp
 
 
 
-serveurtcp: serveurtcp.o
+serveurtcpcpp: serveurtcpcpp.o
 
-	gcc -o serveurtcp -lnsl serveurtcp.o
+	g++ -o serveurtcpcpp -lnsl serveurtcpcpp.o
 
-serveurtcp.o: serveurtcp.c
+serveurtcpcpp.o: serveurtcpcpp.cpp
 
-	gcc -c serveurtcp.c
+	g++ -c serveurtcpcpp.cpp
 
 
 
-clienttcp: clienttcp.o
+clienttcpcpp: clienttcpcpp.o
 
-	gcc -o clienttcp -lnsl clienttcp.o
+	g++ -o clienttcpcpp -lnsl clienttcpcpp.o
 
-clienttcp.o: clienttcp.c
+clienttcpcpp.o: clienttcpcpp.cpp
 
-	gcc -c clienttcp.c
+	g++ -c clienttcpcpp.cpp
 
 
