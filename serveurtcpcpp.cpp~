@@ -89,10 +89,10 @@ int creersock( u_short port) {
 
 
    /* Rend l'option active */
-   optval = 1;
+   /*optval = 1;
    optlen = sizeof(optval);
 
-cout << "retour setsockotp(keepalive) : " << setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &optval,optlen) << endl << endl;
+cout << "retour setsockotp(keepalive) : " << setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &optval,optlen) << endl << endl;*/
 
    /* Verifie a nouveau son etat */
    if(getsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &optval, &optlen) < 0) {
