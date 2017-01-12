@@ -70,14 +70,24 @@ int creersock( u_short port) {
 	*/
 	adresse.sin_addr.s_addr=INADDR_ANY;
 
+
+/* --------------OPTION SO_REUSEADDR------------------*/
+
 	int optval = 1;
 	cout << "retour setsockotp(reuseaddr) : " << setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) << endl << endl;
 		
+
+/* --------------OPTION SO_RCVBUF------------------*/
+
 	int maxBuffer = 150;
 	cout << "retour setsockotp(rcvbuf) : " << setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &maxBuffer, sizeof(maxBuffer)) << endl << endl;
-	
-	/*int boolVal = 0;
-	cout << "retour setsockotp(keepalive) : " << setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &boolVal, sizeof(boolVal)) << endl << endl;*/
+
+/* --------------OPTION SO_SNDLOWAT------------------*/
+
+	cout << "retour setsockotp(sndlowat) : " << setsockopt(sock, SOL_SOCKET, SO_SNDLOWAT, &maxBuffer, sizeof(maxBuffer)) << endl << endl;
+
+/* --------------OPTION SO_KEEPALIVE------------------*/	
+
 /* Verifie l'etat de l'option keepalive */
    socklen_t optlen = sizeof(optval);
    if(getsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &optval,&optlen) < 0) {
@@ -89,10 +99,9 @@ int creersock( u_short port) {
 
 
    /* Rend l'option active */
-   /*optval = 1;
+   optval = 1;
    optlen = sizeof(optval);
-
-cout << "retour setsockotp(keepalive) : " << setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &optval,optlen) << endl << endl;*/
+   cout << "retour setsockotp(keepalive) : " << setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &optval,optlen) <<  	    endl << endl;
 
    /* Verifie a nouveau son etat */
    if(getsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &optval, &optlen) < 0) {
