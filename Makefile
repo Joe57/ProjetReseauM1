@@ -1,23 +1,23 @@
-all: serveurtcpcpp clienttcpcpp
+all: serveur client
 
 
 
-serveurtcpcpp: serveurtcpcpp.o
+serveur: serveur.o
 
-	g++ -o serveurtcpcpp -lnsl serveurtcpcpp.o
+	gcc -o serveur -lnsl serveur.o
 
-serveurtcpcpp.o: serveurtcpcpp.cpp
+serveur.o: serveur.c
 
-	g++ -c serveurtcpcpp.cpp
+	gcc -c serveur.c
 
 
 
-clienttcpcpp: clienttcpcpp.o
+client: client.o
 
-	g++ -o clienttcpcpp -lnsl clienttcpcpp.o
+	gcc -o client -lnsl client.o
 
-clienttcpcpp.o: clienttcpcpp.cpp
+client.o: client.c
 
-	g++ -c clienttcpcpp.cpp
+	gcc -c client.c
 
 
