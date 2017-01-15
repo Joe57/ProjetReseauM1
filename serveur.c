@@ -15,6 +15,9 @@
 #include <netdb.h>      // Fichier d'en-t?tes contenant la d?finition de fonctions et de structures permettant d'obtenir des informations sur le r?seau (gethostbyname(), struct hostent, ...)
 #include <memory.h>     // Contient l'inclusion de string.h (s'il n'est pas d?j? inclus) et de features.h
 #include <errno.h>      // Fichier d'en-t?tes pour la gestion des erreurs (notamment perror()) 
+#include <sys/signal.h>
+#include <arpa/inet.h>
+#include <netinet/tcp.h>
 
 #define P 12332
 
@@ -34,7 +37,9 @@ int creersock(u_short port, int numOption, int valOption) {
 
 	// On cr?e deux variables enti?res
 	int sock, retour;
-
+	int interval = 20;
+	int idle = 15;
+        int maxpkt = 10;
 	// On cr?e une variable adresse selon la structure sockaddr_in (la structure est d?crite dans sys/socket.h)
 	struct sockaddr_in adresse;
 
@@ -74,17 +79,27 @@ int creersock(u_short port, int numOption, int valOption) {
 	switch(numOption){
 		case 0 : break;
 		case 1 : setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOption, sizeof(valOption)); break;
+
 		case 2 : setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &valOption, sizeof(valOption)); break;
+
 		case 3 : setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &valOption, sizeof(valOption)); break;
+
+		case 4 : setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE,&valOption, sizeof(valOption));
+    			 setsockopt(sock, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(int));
+    			 setsockopt(sock, IPPROTO_TCP, TCP_KEEPINTVL, &interval, sizeof(int));
+    			 setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &maxpkt, sizeof(int));; break;	 
 	}
+
+
+
+
+
 	// int optval = 1;
 	// printf("retour setsockotp(reuseaddr) : %d\n\n", setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)));
 	// int maxBuffer = 150;
 	// printf("retour setsockotp(rcvbuf) : %d\n\n", setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &maxBuffer, sizeof(maxBuffer)));
-	// int boolVal = 0;
-	// printf("retour setsockotp(keepalive) : %d\n\n", setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &boolVal, sizeof(boolVal)));
-
-	
+//int boolVal = 1;
+//	 printf("retour setsockotp(keepalive) : %d\n\n", setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &boolVal,sizeof(boolVal)));
 	
 	
 
