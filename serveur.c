@@ -40,6 +40,7 @@ int creersock(u_short port, int numOption, int valOption) {
 	int interval = 20;
 	int idle = 15;
         int maxpkt = 10;
+	int valOptionReuseAddr = 1;
 	// On cr?e une variable adresse selon la structure sockaddr_in (la structure est d?crite dans sys/socket.h)
 	struct sockaddr_in adresse;
 
@@ -76,31 +77,30 @@ int creersock(u_short port, int numOption, int valOption) {
 	adresse.sin_addr.s_addr=INADDR_ANY;
 
 
-	switch(numOption){
         switch(numOption){
     		case 0 : break;
     		case 1 : setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOption, sizeof(valOption)); break;
 
     		case 2 : setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &valOption, sizeof(valOption));
-                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOption, sizeof(valOption));break;
+                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOptionReuseAddr, sizeof(valOptionReuseAddr));break;
 
             case 3 : setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &valOption, sizeof(valOption));
-                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOption, sizeof(valOption));break;
+                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOptionReuseAddr, sizeof(valOptionReuseAddr));break;
 
             case 4 : setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &valOption, sizeof(valOption));
                      setsockopt(sock, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(int));
                      setsockopt(sock, IPPROTO_TCP, TCP_KEEPINTVL, &interval, sizeof(int));
-                     setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &maxpkt, sizeof(int)); break;
-                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOption, sizeof(valOption));break;
+                     setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &maxpkt, sizeof(int)); 
+                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOptionReuseAddr, sizeof(valOptionReuseAddr));break;
 
             case 5 : setsockopt(sock, SOL_SOCKET, SO_ERROR, &valOption, sizeof(valOption));
-                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOption, sizeof(valOption));break;
+                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOptionReuseAddr, sizeof(valOptionReuseAddr));break;
 
             case 6 : setsockopt(sock, SOL_SOCKET, SO_DEBUG, &valOption, sizeof(valOption));
-                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOption, sizeof(valOption));break;
+                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOptionReuseAddr, sizeof(valOptionReuseAddr));break;
 
             case 7 : setsockopt(sock, SOL_SOCKET, SO_OOBINLINE, &valOption, sizeof(valOption));
-                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOption, sizeof(valOption));break;
+                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOptionReuseAddr, sizeof(valOptionReuseAddr));break;
 	}
 
 
@@ -143,14 +143,15 @@ int main (int argc, char *argv[]) {
 
 	int numOption = 0;
 	int valOption = 0;
-
-
+	
 	printf(" ---------------- Serveur ---------------- \n");
 
 	if(argc == 3){
-		numOption = argv[1];
-		valOption = argv[2];
+		numOption = atoi(argv[1]);
+		valOption = atoi(argv[2]);
 	}
+
+	socklen_t valLen = sizeof(valOption);
 
 	// On d?finit les variables n?c?ssaires
 	int newsockfd, s, sock;
@@ -167,12 +168,14 @@ int main (int argc, char *argv[]) {
 	On passe en param?tre la socket qui va ?couter, et un entier qui d?signe le nombre de connexions simultan?es autoris?es (backlog)
 	*/
 	listen (sock,5);
+
     switch(numOption){
         case 1 :
                 if(getsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOption, &valLen) == 0)
                     printf("SO_REUSEADDR is %s\n", (valOption ? "ON" : "OFF"));
                 break;
         case 2 :
+		printf("Le socket a recu %d\n", valOption);
                 if(getsockopt(sock, SOL_SOCKET, SO_RCVBUF, &valOption, &valLen) == 0)
                     printf("SO_RCVBUF is %s\n", (valOption ? "ON" : "OFF"));
                     printf("Le socket a recu %d\n", valOption);
