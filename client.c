@@ -5,62 +5,61 @@
  */
 
 // On importe les fichiers.h ncéssaires.
-#include <stdio.h>      // Fichier contenant les en-têtes des fonctions standard d'entrées/sorties 
+#include <stdio.h>      // Fichier contenant les en-têtes des fonctions standard d'entrées/sorties
 #include <stdlib.h>     // Fichier contenant les en-têtes de fonctions standard telles que malloc()
-#include <string.h>     // Fichier contenant les en-têtes de fonctions standard de gestion de chaînes de caractères 
+#include <string.h>     // Fichier contenant les en-têtes de fonctions standard de gestion de chaînes de caractères
 #include <unistd.h>     // Fichier d'en-têtes de fonctions de la norme POSIX (dont gestion des fichiers : write(), close(), ...)
 #include <sys/types.h>      // Fichier d'en-têtes contenant la définition de plusieurs types et de structures primitifs (système)
 #include <sys/socket.h>     // Fichier d'en-têtes des fonctions de gestion de sockets
 #include <netinet/in.h>     // Fichier contenant différentes macros et constantes facilitant l'utilisation du protocole IP
 #include <netdb.h>      // Fichier d'en-têtes contenant la définition de fonctions et de structures permettant d'obtenir des informations sur le réseau (gethostbyname(), struct hostent, ...)
 #include <memory.h>     // Contient l'inclusion de string.h (s'il n'est pas déjà inclus) et de features.h
-#include <errno.h>      // Fichier d'en-têtes pour la gestion des erreurs (notamment perror()) 
+#include <errno.h>      // Fichier d'en-têtes pour la gestion des erreurs (notamment perror())
 
 #define P 12332
-#define LGMES 200
 
 int main() {
-	
+
 	printf(" ---------------- Client ---------------- \n");
-	
+
     // On définit les variables utilisées dans le programme client.
     int s, sock;
-    char msg[BUFSIZ], NomDistant[BUFSIZ];
+    char message[BUFSIZ], machineDistante[BUFSIZ];
 
     // On crée une variable de type sokaddr_in qui sera utilisée pour la création de la socket cliente.
     struct sockaddr_in adresse;
 
     // Ce pointeur sur la structure hostent sera utilisé pour la recherche d'une adresse IP connaissant le nom du serveur (résolution de noms)
-    struct hostent *recup; 
+    struct hostent *recup;
 
     // On crée la socket cliente, de type AF_INET, qui utilisera TCP comme protocole de transport.
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
-        perror("Erreur ouverture");
+        perror("Erreur à l'ouverture");
         return(-1);
     }
 
     // On demande a l'utilisateur de rentrer le nom de la machine serveur a laquelle le programme va se connecter.
     printf("Nom de la machine distante: ");
-    scanf("%s", NomDistant);
-    printf("NomDistant: %s", NomDistant);
+    scanf("%s", machineDistante);
+    printf("machineDistante: %s", machineDistante);
 
     // On tente de résoudre le nom donné par l'utilisateur, afin de récupérer l'adresse qui lui correspond
 	// et remplir ainsi la structure sockaddr_in
-    recup = gethostbyname(NomDistant);
+    recup = gethostbyname(machineDistante);
     if (recup == NULL) {
-        perror("Erreur obtention adresse");
+        perror("Erreur avec l'obtention de adresse\n");
         return(-1);
     }
 
     /*
-    On copie la zone mémoire qui contient la valeur de reecup (l'adresse IP du serveur) directement dans la zone mémoire 
-    qui doit contenir cette valeur dans la structure sockaddr_in. 
+    On copie la zone mémoire qui contient la valeur de reecup (l'adresse IP du serveur) directement dans la zone mémoire
+    qui doit contenir cette valeur dans la structure sockaddr_in.
     En paramètres :  la zone mémoire destination, la zone mémoire source,
     la longueur des données a copier.
     */
-    memcpy((char *)&adresse.sin_addr, (char *)recup->h_addr, recup->h_length);    
-	
+    memcpy((char *)&adresse.sin_addr, (char *)recup->h_addr, recup->h_length);
+
     // On utilise toujours une socket de type AF_INET
     adresse.sin_family = AF_INET;
 
@@ -69,7 +68,7 @@ int main() {
 
     // On tente de se connecter au serveur : cette opération prend la place du accept que l'on a effectué dans le programme serveur.
     if (connect(sock, (struct sockaddr *)&adresse, sizeof(adresse)) == -1) {
-        perror("Erreur connexion");
+        perror("Erreur de connexion");
         return(-1);
     }
 
@@ -80,28 +79,28 @@ int main() {
     */
 	while(1){
 		printf("\nMessage: ");
-		scanf(" %[^\n]", msg);//scanf("%s", msg);
+		scanf(" %[^\n]", message);//scanf("%s", message);
 
-	   // printf("Msg a envoyer: %s\n", msg);
+	   // printf("message a envoyer: %s\n", message);
 
 		// Comme pour le serveur, on utilise write pour expédier le message sur le réseau, avec message d'erreur si l'écriture se passe mal.
-		if (write(sock, msg, strlen(msg)) == -1) {
-			perror("Erreur ecriture");
+		if (write(sock, message, strlen(message)) == -1) {
+			perror("Erreur avec ecriture");
 			return(-1);
-		}    
+		}
 
 		// On lit la réponse du serveur.
-		printf("Maintenant lecture\n");
-		memset(msg, 0, sizeof msg);
-		s = read(sock, msg, 1024);
+		printf("Maintenant la lecture\n");
+		memset(message, 0, sizeof message);
+		s = read(sock, message, BUFSIZ);
 
 		// Message d'erreur si la lecture se passe mal.
 		if (s == -1) {
-			perror("Erreur read");
+			perror("Erreur avec read");
 			return(-1);
 		}
 		else
-			printf("Lecture reussie, msg: %d %s\n", s, msg);
+			printf("Lecture ok, message: %d %s\n", s, message);
 	} //end of while(1)
 
     // On referme la socket cliente. Cette opération ferme la socket cliente pour le programme client, le serveur fait de même de son coté,

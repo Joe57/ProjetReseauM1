@@ -23,36 +23,18 @@
 
 
 
-/*
-creersock
-
-Il s'agit de la fonction qui va permettre la cr?ation d'une socket.
-Elle est utilis?e dans la fonction main().
-Elle prend en param?tre un entier court non sign?, qui est le num?ro de port,
-n?c?ssaire ? l'op?ration bind().
-Cette fonction renvoie un num?ro qui permet d'identifier la socket nouvellement cr??e
-(ou la valeur -1 si l'op?ration a ?chou?e).
-*/
-int creersock(u_short port, int numOption, int valOption) {
+int creersock(u_short port, int numeroOption, int valeurOption) {
 
 	// On cr?e deux variables enti?res
 	int sock, retour;
-	int interval = 20;
-	int idle = 15;
-        int maxpkt = 10;
-	int valOptionReuseAddr = 1;
+	int delai = 30;
+	int idle = 40;
+    int iterationKeepAlive = 15;
+	int valReuseAddr = 1;
 	// On cr?e une variable adresse selon la structure sockaddr_in (la structure est d?crite dans sys/socket.h)
 	struct sockaddr_in adresse;
 
-	/*
-	La ligne suivante d?crit la cr?ation de la socket en tant que telle.
-	La fonction socket prend 3 param?tres :
-	- la famille du socket : la plupart du temps, les d?veloppeurs utilisent AF_INET pour l'Internet (TCP/IP, adresses IP sur 4 octets)
-	Il existe aussi la famille AF_UNIX, dans ce mode, on ne passe pas des num?ros de port mais des noms de fichiers.
-	- le protocole de niveau 4 (couche transport) utilis? : SOCK_STREAM pour TCP, SOCK_DGRAM pour UDP, ou enfin SOCK_RAW pour g?n?rer
-	des trames directement g?r?es par les couches inf?rieures.
-	- un num?ro d?signant le protocole qui fournit le service d?sir?. Dans le cas de socket TCP/IP, on place toujours ce param?tre a 0 si on utilise le protocole par d?faut.
-	*/
+
 	sock = socket(AF_INET,SOCK_STREAM,0);
 
 	// Si le code retourn? n'est pas un identifiant valide (la cr?ation s'est mal pass?e), on affiche un message sur la sortie d'erreur, et on renvoie -1
@@ -77,43 +59,34 @@ int creersock(u_short port, int numOption, int valOption) {
 	adresse.sin_addr.s_addr=INADDR_ANY;
 
 
-        switch(numOption){
+        switch(numeroOption){
     		case 0 : break;
-    		case 1 : setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOption, sizeof(valOption)); break;
+    		case 1 : setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valeurOption, sizeof(valeurOption)); break;
 
-    		case 2 : setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &valOption, sizeof(valOption));
-                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOptionReuseAddr, sizeof(valOptionReuseAddr));break;
+    		case 2 : setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &valeurOption, sizeof(valeurOption));
+                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valReuseAddr, sizeof(valReuseAddr));break;
 
-            case 3 : setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &valOption, sizeof(valOption));
-                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOptionReuseAddr, sizeof(valOptionReuseAddr));break;
+            case 3 : setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &valeurOption, sizeof(valeurOption));
+                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valReuseAddr, sizeof(valReuseAddr));break;
 
-            case 4 : setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &valOption, sizeof(valOption));
+            case 4 : setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &valeurOption, sizeof(valeurOption));
                      setsockopt(sock, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(int));
-                     setsockopt(sock, IPPROTO_TCP, TCP_KEEPINTVL, &interval, sizeof(int));
-                     setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &maxpkt, sizeof(int)); 
-                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOptionReuseAddr, sizeof(valOptionReuseAddr));break;
+                     setsockopt(sock, IPPROTO_TCP, TCP_KEEPINTVL, &delai, sizeof(int));
+                     setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &iterationKeepAlive, sizeof(int));
+                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valReuseAddr, sizeof(valReuseAddr));break;
 
-            case 5 : setsockopt(sock, SOL_SOCKET, SO_ERROR, &valOption, sizeof(valOption));
-                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOptionReuseAddr, sizeof(valOptionReuseAddr));break;
+            case 5 : setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &valeurOption, sizeof(valeurOption));
+                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valReuseAddr, sizeof(valReuseAddr));break;
 
-            case 6 : setsockopt(sock, SOL_SOCKET, SO_DEBUG, &valOption, sizeof(valOption));
-                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOptionReuseAddr, sizeof(valOptionReuseAddr));break;
+            case 6 : setsockopt(sock, SOL_SOCKET, SO_DEBUG, &valeurOption, sizeof(valeurOption));
+                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valReuseAddr, sizeof(valReuseAddr));break;
 
-            case 7 : setsockopt(sock, SOL_SOCKET, SO_OOBINLINE, &valOption, sizeof(valOption));
-                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOptionReuseAddr, sizeof(valOptionReuseAddr));break;
+		 	case 7 : setsockopt(sock, SOL_SOCKET, SO_DONTROUTE, &valeurOption, sizeof(valeurOption));
+		             setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valReuseAddr, sizeof(valReuseAddr));break;
+
+            case 8 : setsockopt(sock, SOL_SOCKET, SO_OOBINLINE, &valeurOption, sizeof(valeurOption));
+                     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valReuseAddr, sizeof(valReuseAddr));break;
 	}
-
-
-
-
-
-	// int optval = 1;
-	// printf("retour setsockotp(reuseaddr) : %d\n\n", setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)));
-	// int maxBuffer = 150;
-	// printf("retour setsockotp(rcvbuf) : %d\n\n", setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &maxBuffer, sizeof(maxBuffer)));
-//int boolVal = 1;
-//	 printf("retour setsockotp(keepalive) : %d\n\n", setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &boolVal,sizeof(boolVal)));
-
 
 
 	/*
@@ -136,31 +109,26 @@ int creersock(u_short port, int numOption, int valOption) {
 }
 
 
-
-
-
 int main (int argc, char *argv[]) {
 
-	int numOption = 0;
-	int valOption = 0;
-	
+	int numeroOption = 0;
+	int valeurOption = 0;
+
 	printf(" ---------------- Serveur ---------------- \n");
 
 	if(argc == 3){
-		numOption = atoi(argv[1]);
-		valOption = atoi(argv[2]);
+		numeroOption = atoi(argv[1]);
+		valeurOption = atoi(argv[2]);
 	}
 
-	socklen_t valLen = sizeof(valOption);
-
-	// On d?finit les variables n?c?ssaires
+	socklen_t longueurOption = sizeof(valeurOption);
 	int newsockfd, s, sock;
 	u_short port;
-	char msg [BUFSIZ];
+	char message [BUFSIZ];
 	port = P;
 
 	// On cr?e la socket
-	sock = creersock(port, numOption, valOption);
+	sock = creersock(port, numeroOption, valeurOption);
 
 	/*
 	listen
@@ -169,45 +137,44 @@ int main (int argc, char *argv[]) {
 	*/
 	listen (sock,5);
 
-    switch(numOption){
+    switch(numeroOption){
         case 1 :
-                if(getsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valOption, &valLen) == 0)
-                    printf("SO_REUSEADDR is %s\n", (valOption ? "ON" : "OFF"));
+                if(getsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &valeurOption, &longueurOption) == 0)
+                    printf("SO_REUSEADDR is %s\n", (valeurOption ? "ON" : "OFF"));
                 break;
         case 2 :
-		printf("Le socket a recu %d\n", valOption);
-                if(getsockopt(sock, SOL_SOCKET, SO_RCVBUF, &valOption, &valLen) == 0)
-                    printf("SO_RCVBUF is %s\n", (valOption ? "ON" : "OFF"));
-                    printf("Le socket a recu %d\n", valOption);
+		printf("Le socket a recu %d\n", valeurOption);
+                if(getsockopt(sock, SOL_SOCKET, SO_RCVBUF, &valeurOption, &longueurOption) == 0)
+                    printf("SO_RCVBUF is %s\n", (valeurOption ? "ON" : "OFF"));
+                    printf("Le socket a recu %d\n", valeurOption);
                 break;
         case 3 :
-                if(getsockopt(sock, SOL_SOCKET, SO_SNDBUF, &valOption, &valLen) == 0)
-                    printf("SO_SNDBUF is %s\n", (valOption ? "ON" : "OFF"));
+                if(getsockopt(sock, SOL_SOCKET, SO_SNDBUF, &valeurOption, &longueurOption) == 0)
+                    printf("SO_SNDBUF is %s\n", (valeurOption ? "ON" : "OFF"));
                 break;
         case 4 :
-                if(getsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &valOption, &valLen) == 0)
-                    printf("SO_KEEPALIVE is %s\n", (valOption ? "ON" : "OFF"));
+                if(getsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &valeurOption, &longueurOption) == 0)
+                    printf("SO_KEEPALIVE is %s\n", (valeurOption ? "ON" : "OFF"));
                 break;
         case 5 :
-                if(getsockopt(sock, SOL_SOCKET, SO_ERROR, &valOption, &valLen) == 0)
-                    printf("SO_ERROR is %s\n", (valOption ? "ON" : "OFF"));
+                if(getsockopt(sock, SOL_SOCKET, SO_BROADCAST, &valeurOption, &longueurOption) == 0)
+                    printf("SO_BROADCAST is %s\n", (valeurOption ? "ON" : "OFF"));
                 break;
         case 6 :
-                if(getsockopt(sock, SOL_SOCKET, SO_DEBUG, &valOption, &valLen) == 0)
-                    printf("SO_DEBUG is %s\n", (valOption ? "ON" : "OFF"));
+                if(getsockopt(sock, SOL_SOCKET, SO_DEBUG, &valeurOption, &longueurOption) == 0)
+                    printf("SO_DEBUG is %s\n", (valeurOption ? "ON" : "OFF"));
                 break;
         case 7 :
-                if(getsockopt(sock, SOL_SOCKET, SO_OOBINLINE, &valOption, &valLen) == 0)
-                    printf("SO_OOBINLINE is %s\n", (valOption ? "ON" : "OFF"));
+                if(getsockopt(sock, SOL_SOCKET, SO_DONTROUTE, &valeurOption, &longueurOption) == 0)
+                    printf("SO_DONTROUTE is %s\n", (valeurOption ? "ON" : "OFF"));
                 break;
+		case 8 :
+		        if(getsockopt(sock, SOL_SOCKET, SO_OOBINLINE, &valeurOption, &longueurOption) == 0)
+		            printf("SO_OOBINLINE is %s\n", (valeurOption ? "ON" : "OFF"));
+		        break;
     }
 	while(1){
-		/* La fonction accept permet d'accepter une connexion ? notre socket par un client. On passe en param?tres la socket serveur d'écoute à demi définie.
-		newsockfd contiendra l'identifiant de la socket de communication. newsockfd est la valeur de retour de la primitive accept.
-		C'est une socket d'?change de messages : elle est enti?rement d?finie.
-		On peut pr?ciser aussi la structure et la taille de sockaddr associ?e
-		mais ce n'est pas obligatoire et ici on a mis le pointeur NULL
-		*/
+
 		newsockfd = accept (sock, (struct sockaddr *) 0, (unsigned int*) 0);
 
 		// Si l'accept se passe mal, on quitte le programme en affichant un message d'erreur.
@@ -216,40 +183,40 @@ int main (int argc, char *argv[]) {
 			return(-1);
 		}
 		else
-			printf("Accept reussi");
+			printf("Accept ok");
 
 
 		int r = fork();
 		if(r == -1){
-			perror("Erreur fork");
+			perror("Erreur avec fork");
 			return(-1);
 		}
 		else if(r == 0){ //Fils
 			// On lit le message envoy? par la socket de communication.
-			//  msg contiendra la chaine de caract?res envoy?e par le r?seau,
+			//  message contiendra la chaine de caract?res envoy?e par le r?seau,
 			// s le code d'erreur de la fonction. -1 si pb et sinon c'est le nombre de caract?res lus
 			while(1){
-                memset(msg, 0, sizeof msg);
-				s = read(newsockfd, msg, 1024);
+                memset(message, 0, sizeof message);
+				s = read(newsockfd, message, BUFSIZ);
 				if (s == -1)
-					perror("Problemes");
+					perror("Erreur avec read");
 				else {
 					// Si le code d'erreur est bon, on affiche le message.
-					msg[s] = 0;
-                    printf("Lecture reussie, msg: %d\n", s);
-					printf("Recept reussie, emission msg: ");
+					message[s] = 0;
+                    printf("Lecture ok, message: %d\n", s);
+					printf("Recept ok, emission message: ");
 
 					// On demande ? l'utilisateur de rentrer un message qui va ?tre exp?di? sur le r?seau
-					scanf(" %[^\n]", msg);//scanf("%s", msg);
+					scanf(" %[^\n]", message);//scanf("%s", message);
 
 					// On va ?crire sur la socket, en testant le code d'erreur de la fonction write.
-					s = write(newsockfd, msg, strlen(msg));
+					s = write(newsockfd, message, strlen(message));
 					if (s == -1) {
-						perror("Erreur write");
+						perror("Erreur avec write");
 						return(-1);
 					}
 					else
-						printf("Ecriture reussie, msg: %s\n", msg);
+						printf("Ecriture ok, message: %s\n", message);
 				}
 			} // End of son's while(1)
 
