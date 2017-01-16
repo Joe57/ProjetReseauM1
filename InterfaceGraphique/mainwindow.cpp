@@ -55,6 +55,22 @@ void MainWindow::on_radioButton_4_clicked(){
     this->majNumeroOption("4");
 }
 
+void MainWindow::on_radioButton_5_clicked(){
+    this->majNumeroOption("5");
+}
+
+void MainWindow::on_radioButton_6_clicked(){
+    this->majNumeroOption("6");
+}
+
+void MainWindow::on_radioButton_7_clicked(){
+    this->majNumeroOption("7");
+}
+
+void MainWindow::on_radioButton_8_clicked(){
+    this->majNumeroOption("8");
+}
+
 void MainWindow::majNumeroOption(char* num){
     ui->numeroOption->setText(QString(num));
 }

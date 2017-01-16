@@ -39,7 +39,7 @@
         </size>
        </property>
        <property name="title">
-        <string>GroupBox</string>
+        <string>Options disponibles</string>
        </property>
        <widget class="QRadioButton" name="radioButton_1">
         <property name="geometry">
@@ -80,17 +80,69 @@
          <string>SO_SNDBUF</string>
         </property>
        </widget>
-       <widget class="QRadioButton" name="radioButton_4">
+       <widget class="QRadioButton" name="radioButton_5">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>150</y>
+          <y>190</y>
           <width>151</width>
           <height>17</height>
          </rect>
         </property>
         <property name="text">
          <string>SO_DEBUG</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="radioButton_4">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>150</y>
+          <width>161</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>SO_KEEPALIVE</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="radioButton_6">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>230</y>
+          <width>171</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>SO_OOBINLINE</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="radioButton_7">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>270</y>
+          <width>161</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>SO_DONTROUTE</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="radioButton_8">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>310</y>
+          <width>171</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>SO_BROADCAST</string>
         </property>
        </widget>
       </widget>
@@ -164,7 +216,7 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>100</width>
+           <width>200</width>
            <height>16777215</height>
           </size>
          </property>
